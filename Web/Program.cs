@@ -10,6 +10,7 @@ using Microsoft.OpenApi.Models;
 using Microsoft.Extensions.Options;
 using System.Reflection;
 using Web.Helpers;
+using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,11 +25,11 @@ builder.Services.AddSwaggerGen(options =>
     {
         Version = "v1",
         Title = "API Gracosoft .NET CORe",
-        Description = "Aplicación elaborada durante las clases del 1 al 9 de la asignatura .Net Core, se encarga del procesamiento de la lógica de un videojuego RPG.",
+        Description = "Aplicaciï¿½n elaborada durante las clases del 1 al 9 de la asignatura .Net Core, se encarga del procesamiento de la lï¿½gica de un videojuego RPG.",
         TermsOfService = new Uri("https://example.com/terms"),
         Contact = new OpenApiContact
         {
-            Name = "Guillermo Giménez",
+            Name = "Guillermo Gimï¿½nez",
             Url = new Uri("https://github.com/GGimenezG/GracoNETCore")
         },
         License = new OpenApiLicense
@@ -97,13 +98,19 @@ builder.Services.AddScoped(typeof(ITipoEstadisticaRepository), typeof(TipoEstadi
 builder.Services.AddScoped(typeof(ITipoObjetoRepository), typeof(TipoObjetoRepository));
 builder.Services.AddScoped(typeof(IUbicacionRepository), typeof(UbicacionRepository));
 
+builder.Services.AddScoped(typeof(IUserRepository), typeof(UserRepository));
+builder.Services.AddScoped(typeof(IUserService), typeof(UserService));
+
 builder.Services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
 builder.Services.AddScoped<IUserService, UserService>();
 
 builder.Services.AddDbContext<AppDbContext>(patata =>
-        patata.UseNpgsql("Host=dpg-d07up2qdbo4c73btv6a0-a;Server=dpg-d07up2qdbo4c73btv6a0-a.oregon-postgres.render.com;Port=5432;Database=netcore2025gracotaller;Username=netcore2025gracotaller_user;Password=JySaSfBbVSvDX4BZSLhgjJYxOVTCntx8;Include Error Detail=true;",
+        patata.UseNpgsql("Host=dpg-d07up2qdbo4c73btv6a0-a;Server=dpg-d07up2qdbo4c73btv6a0-a.oregon-postgres.render.com;Port=5432;Database=netcore2025gracotaller;Username=netcore2025gracotaller_user;Password=N7VBiUb3mGYgjs5kggnzcFLuoBMoo2Ch;Include Error Detail=true;",
         b => b.MigrationsAssembly("Infrastructure")));
 
+builder.Services.AddControllers().AddJsonOptions(options => {
+    options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+});
 
 //builder.Services.AddDbContext<AppDbContext>(options =>
 //                    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
@@ -128,7 +135,15 @@ app.UseMiddleware<JwtMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 
-
+//para ver q recibo
+app.Use(async (context, next) => {
+    context.Request.EnableBuffering();
+    var reader = new StreamReader(context.Request.Body);
+    var body = await reader.ReadToEndAsync();
+    Console.WriteLine($"Request Body: {body}");
+    context.Request.Body.Position = 0;
+    await next();
+});
 
 app.Run();
 

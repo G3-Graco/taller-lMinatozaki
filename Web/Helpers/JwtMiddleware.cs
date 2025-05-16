@@ -1,5 +1,5 @@
-﻿using Core.Entidades;
-using Core.Interfaces.Servicios;
+﻿using Core.Entities;
+using Core.Interfaces.Services;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;

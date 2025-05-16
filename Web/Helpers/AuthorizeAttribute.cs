@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc;
-using Core.Entidades;
+using Core.Entities;
 
 
 namespace Web.Helpers

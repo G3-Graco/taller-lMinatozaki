@@ -7,7 +7,8 @@ using System.Threading.Tasks;
 
 namespace Core.Interfaces.Repositories
 {
-    interface IUserRepository : IBaseRepository<User>
+    public interface IUserRepository : IBaseRepository<User>
     {
+        ValueTask<User> GetUser(string username, string password);
     }
 }

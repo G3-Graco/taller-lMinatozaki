@@ -26,13 +26,11 @@ namespace Infrastructure.Data
         public DbSet<Ranura> Ranuras { get; set; }
         public DbSet<Objetivo> Objetivo { get; set; }
         public DbSet<PersonajeMision> PersonajeMisiones { get; set; }
-
-
+        public DbSet<User> User { get; set; }
 
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
         }
-
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -50,7 +48,5 @@ namespace Infrastructure.Data
             modelBuilder.ApplyConfiguration(new PersonajeMisionConfiguration());
             modelBuilder.ApplyConfiguration(new ObjetivoConfiguration());
         }
-
-
     }
 }
