@@ -25,6 +25,7 @@ namespace AppBlazor.Data.Services
                 return new Response<string> { Ok = false, Message = content };
 
             await _tokenContainer.AsignarToken(content);
+            Console.WriteLine(content);
             return new Response<string> { Ok = true, Data = content };
         }
     }
