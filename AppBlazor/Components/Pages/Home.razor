@@ -1,7 +1,47 @@
 ﻿@page "/"
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Taller .NET</PageTitle>
 
-<h1>Hello, world!</h1>
+<a href="https://www.youtube.com/watch?v=b3rNUhDqciM&ab_channel=FunStuff">en terminos de authorize, no logre que autorizara (de click aqui)</a>
 
-Welcome to your new app.
+<div style="position: relative; min-height: 100vh; overflow: hidden;">
+    <div style="position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                z-index: 0;">
+        <img src="https://tr.rbxcdn.com/180DAY-4422bc080c9c234dcd2c830fd3c0579c/420/420/ShoulderAccessory/Webp/noFilter" 
+             alt="hamster que soy yo"
+             style="max-width: 80vw;
+                    max-height: 80vh;
+                    width: auto;
+                    height: auto;
+                    object-fit: contain;">
+    </div>
+
+    <div class="container text-center" style="position: relative; z-index: 1; padding-top: 20vh;">
+        <h1 class="display-4" style="color: #333; margin-bottom: 2rem;">Opciones</h1>
+        
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card" style="background: rgba(255, 255, 255, 0.9);">
+                    <div class="card-body">
+                        <div class="d-flex flex-column flex-md-row justify-content-center gap-3">
+                            <a href="auth/register" class="btn btn-primary btn-lg">
+                                <i class="bi bi-person-plus-fill"></i> Registrarse
+                            </a>
+                            
+                            <a href="auth/login" class="btn btn-success btn-lg">
+                                <i class="bi bi-box-arrow-in-right"></i> Iniciar Sesión
+                            </a>
+                            
+                            <a href="consultar-usuario" class="btn btn-info btn-lg">
+                                <i class="bi bi-search"></i> Consultar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

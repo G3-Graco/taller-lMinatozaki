@@ -1,0 +1,170 @@
+@page "/consultar-usuario"
+@using AppBlazor.Data.Models
+@using AppBlazor.Data.Services
+@using Microsoft.AspNetCore.Components.Forms
+@using System.ComponentModel.DataAnnotations
+@rendermode InteractiveServer
+@inject AuthService AuthService
+@inject NavigationManager NavManager
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <h3 class="text-center mb-4">Consultar usuario</h3>
+
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5>Buscar Usuario por ID</h5>
+                </div>
+                <div class="card-body">
+                    <EditForm Model="@searchModel" OnValidSubmit="@HandleSearch">
+                        <DataAnnotationsValidator />
+                        
+                        <div class="mb-3">
+                            <label class="form-label">ID del usuario</label>
+                            <InputNumber @bind-Value="searchModel.UserId" class="form-control" />
+                            <ValidationMessage For="@(() => searchModel.UserId)" />
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Buscar</button>
+                    </EditForm>
+                </div>
+            </div>
+
+            @if (user != null)
+            {
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h5>Información del usuario</h5>
+                    </div>
+                    <div class="card-body">
+                        <EditForm Model="@editModel" OnValidSubmit="@HandleUpdate">
+                            <DataAnnotationsValidator />
+                            <ValidationSummary />
+
+                            <div class="mb-3">
+                                <label class="form-label">ID</label>
+                                <InputNumber @bind-Value="editModel.Id" class="form-control" disabled />
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Nombre de usuario</label>
+                                <InputText @bind-Value="editModel.UserName" class="form-control" />
+                                <ValidationMessage For="@(() => editModel.UserName)" />
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Nueva contraseña (dejar vacio para no cambiar)</label>
+                                <InputText type="password" @bind-Value="editModel.Password" class="form-control" />
+                                <ValidationMessage For="@(() => editModel.Password)" />
+                            </div>
+
+                            <div class="d-flex justify-content-between">
+                                <button type="submit" class="btn btn-success">Guardar Cambios</button>
+                                <button type="button" class="btn btn-danger" @onclick="HandleCancel">Cancelar</button>
+                            </div>
+                        </EditForm>
+                    </div>
+                </div>
+            }
+
+            @if (!string.IsNullOrEmpty(message))
+            {
+                <div class="alert @alertClass mt-3">@message</div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private UserSearchModel searchModel = new();
+    private UserDTO? user;
+    private UserDTO? editModel;
+    private string message = string.Empty;
+    private string alertClass = "alert-danger";
+
+    private async Task HandleSearch()
+    {
+        try
+        {
+            var response = await AuthService.GetUserById(searchModel.UserId);
+            
+            if (response.Ok && response.Data != null)
+            {
+                user = response.Data;
+                editModel = new UserDTO 
+                {
+                    Id = user.Id,
+                    UserName = user.UserName,
+                    Password = string.Empty
+                };
+                message = string.Empty;
+            }
+            else
+            {
+                user = null;
+                message = response.Message ?? "Usuario no encontrado";
+                alertClass = "alert-danger";
+            }
+        }
+        catch (Exception ex)
+        {
+            message = $"Error: {ex.Message}";
+            alertClass = "alert-danger";
+        }
+    }
+
+    private async Task HandleUpdate()
+    {
+        try
+        {
+            var response = await AuthService.UpdateUser(editModel.Id, editModel);
+            
+            if (response.Ok && response.Data != null)
+            {
+                user = response.Data;
+                message = "Usuario actualizado correctamente";
+                alertClass = "alert-success";
+
+                editModel = new UserDTO 
+                {
+                    Id = user.Id,
+                    UserName = user.UserName,
+                    Password = string.Empty
+                };
+            }
+            else
+            {
+                message = response.Message ?? "Error al actualizar el usuario";
+                alertClass = "alert-danger";
+            }
+        }
+        catch (Exception ex)
+        {
+            message = $"Error: {ex.Message}";
+            alertClass = "alert-danger";
+        }
+    }
+
+    private void HandleCancel()
+    {
+        if (user != null)
+        {
+            editModel = new UserDTO 
+            {
+                Id = user.Id,
+                UserName = user.UserName,
+                Password = string.Empty
+            };
+            message = "Cambios descartados";
+            alertClass = "alert-warning";
+        }
+    }
+
+    public class UserSearchModel
+    {
+        [Required(ErrorMessage = "El ID es requerido")]
+        [Range(1, int.MaxValue, ErrorMessage = "ID inválido")]
+        public int UserId { get; set; }
+    }
+}

@@ -13,5 +13,6 @@ namespace Core.Interfaces.Services
         Task<bool> ValidateToken(string token);
         void Logout(string token);
         Task<User> GetUserById(int id);
+        Task<User> UpdateUser(int userId, User updateUser);
     }
 }

@@ -15,7 +15,7 @@ namespace Web.Controllers
         {
             _service = userService;
         }
-        
+
         [HttpPost("Login")]
         public async Task<IActionResult> Login(User user)
         {
@@ -23,7 +23,7 @@ namespace Web.Controllers
             var token = await _service.Login(user);
             if (token == null || token == string.Empty)
             {
-                return BadRequest(new{ message = "Username or Password is incorrect" });
+                return BadRequest(new { message = "Username or Password is incorrect" });
             }
             return Ok(token);
         }
@@ -36,7 +36,7 @@ namespace Web.Controllers
         [HttpPost("validate")]
         public async Task<IActionResult> ValidateTokenAsync([FromBody] TokenRequest request)
         {
-            if(string.IsNullOrEmpty(request.Token) || await _service.ValidateToken(request.Token) == false)
+            if (string.IsNullOrEmpty(request.Token) || await _service.ValidateToken(request.Token) == false)
             {
                 return Unauthorized(new { message = "token invalido" });
             }
@@ -46,8 +46,15 @@ namespace Web.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register(User user)
         {
-            var newUser = await _service.CreateUser(user);
-            return CreatedAtAction(nameof(Register), newUser);
+            try
+            {
+                var newUser = await _service.CreateUser(user);
+                return CreatedAtAction(nameof(Register), newUser);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error interno del servidor", detail = ex.Message });
+            }
         }
 
         [HttpPost("logout")]
@@ -61,6 +68,7 @@ namespace Web.Controllers
             return Ok(new { message = "Logged out successfully!!!" });
         }
 
+
         [HttpGet("user/{id}")]
         public async Task<IActionResult> GetUser(int id)
         {
@@ -72,6 +80,33 @@ namespace Web.Controllers
             }
 
             return Ok(user);
+        }
+        
+        [HttpPut("user/{id}")]
+        public async Task<IActionResult> UpdateUser(int id, [FromBody] User updateUser)
+        {
+            try
+            {
+                if (id != updateUser.Id)
+                {
+                    return BadRequest(new { message = "ID ingresado no coincide con el ID del usuario" });
+                }
+
+                var updatedUser = await _service.UpdateUser(id, updateUser);
+                return Ok(updatedUser);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error interno del servidor", detail = ex.Message });
+            }
         }
     }
 }

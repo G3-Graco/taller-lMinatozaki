@@ -28,5 +28,90 @@ namespace AppBlazor.Data.Services
             Console.WriteLine(content);
             return new Response<string> { Ok = true, Data = content };
         }
+
+        public async Task<Response<UserDTO>> GetUserById(int userId)
+        {
+            try
+            {
+                var response = await _http.GetAsync($"api/auth/user/{userId}");
+                var content = await response.Content.ReadAsStringAsync();
+
+                if (!response.IsSuccessStatusCode)
+                    return new Response<UserDTO> { Ok = false, Message = content };
+
+                return new Response<UserDTO>
+                {
+                    Ok = true,
+                    Data = JsonConvert.DeserializeObject<UserDTO>(content)
+                };
+            }
+            catch (Exception ex)
+            {
+                return new Response<UserDTO>
+                {
+                    Ok = false,
+                    Message = ex.Message
+                };
+            }
+        }
+
+        public async Task<Response<string>> Register(RegisterDTO user)
+        {
+            var response = await _http.PostAsJsonAsync("api/auth/register", new
+            {
+                Id = user.Id,
+                UserName = user.UserName,
+                Password = user.Password
+            });
+
+            var content = await response.Content.ReadAsStringAsync();
+
+            if (!response.IsSuccessStatusCode)
+            {
+                return new Response<string>
+                {
+                    Ok = false,
+                    Message = content
+                };
+            }
+
+            return new Response<string>
+            {
+                Ok = true,
+                Message = $"Usuario registrado exitosamente con ID {user.Id}"
+            };
+        }
+        
+        public async Task<Response<UserDTO>> UpdateUser(int userId, UserDTO userData)
+        {
+            try
+            {
+                var response = await _http.PutAsJsonAsync($"api/auth/user/{userId}", userData);
+                var content = await response.Content.ReadAsStringAsync();
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    return new Response<UserDTO> 
+                    { 
+                        Ok = false, 
+                        Message = content 
+                    };
+                }
+
+                return new Response<UserDTO> 
+                { 
+                    Ok = true, 
+                    Data = JsonConvert.DeserializeObject<UserDTO>(content) 
+                };
+            }
+            catch (Exception ex)
+            {
+                return new Response<UserDTO> 
+                { 
+                    Ok = false, 
+                    Message = $"Error de conexión: {ex.Message}" 
+                };
+            }
+        }
     }
 }

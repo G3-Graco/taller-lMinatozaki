@@ -81,6 +81,18 @@ namespace Services.Services
 
         public async Task<User> CreateUser(User newUser)
         {
+            var existingUser = await _unitOfWork.UserRepository.GetByIdAsync(newUser.Id);
+            if (existingUser != null)
+            {
+                throw new InvalidOperationException($"El ID {newUser.Id} ya está en uso");
+            }
+
+            var userByName = await _unitOfWork.UserRepository.GetUser(newUser.UserName, null);
+            if (userByName != null)
+            {
+                throw new InvalidOperationException($"El nombre de usuario '{newUser.UserName}' ya está en uso");
+            }
+
             newUser.Password = HashPassword(newUser.Password);
 
             await _unitOfWork.UserRepository.AddAsync(newUser);
@@ -106,6 +118,34 @@ namespace Services.Services
         public async Task<User> GetUserById(int id)
         {
             return await _unitOfWork.UserRepository.GetByIdAsync(id);
+        }
+
+        public async Task<User> UpdateUser(int userId, User updateUser)
+        {
+            var existingUser = await _unitOfWork.UserRepository.GetByIdAsync(userId);
+            if (existingUser == null)
+            {
+                throw new KeyNotFoundException($"Usuario con ID {userId} no encontrado");
+            }
+
+            if (existingUser.UserName != updateUser.UserName)
+            {
+                var userByName = await _unitOfWork.UserRepository.GetUser(updateUser.UserName, null);
+                if (userByName != null)
+                {
+                    throw new InvalidOperationException($"El nombre de usuario '{updateUser.UserName}' ya esta en uso :/");
+                }
+            }
+
+            existingUser.UserName = updateUser.UserName;
+
+            if (!string.IsNullOrEmpty(updateUser.Password) && updateUser.Password != existingUser.Password)
+            {
+                existingUser.Password = HashPassword(updateUser.Password);
+            }
+
+            await _unitOfWork.CommitAsync();
+            return existingUser;
         }
     }
 }
